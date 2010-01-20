@@ -27,7 +27,7 @@ module Facebooker
       end
       
       def create_facebook_session
-        secure_with_facebook_params! || secure_with_cookies! || secure_with_token!
+        secure_with_facebook_params! || secure_with_connect_js! || secure_with_cookies! || secure_with_token!
       end
       
       #this is used to proxy a connection through a rails app so the facebook secret key is not needed
@@ -129,6 +129,25 @@ module Facebooker
         fb_cookie_names = cookies.keys.select{|k| k && k.starts_with?(fb_cookie_prefix)}
       end
 
+      def secure_with_connect_js!
+        cookie_str = cookies["fbs_#{Facebooker.api_key}"]
+        return unless cookie_str 
+        parsed = {}
+        cookie_str = cookie_str[1..-2] # get rid of quotes
+        cookie_str.split('&').each do |kv|
+          pair = kv.split('=')
+          parsed[pair[0]] = pair[1]
+        end
+        return unless parsed['session_key'] && parsed['uid'] && parsed['expires'] && parsed['secret'] && parsed['sig']
+        expected_sig = parsed['sig']
+        parsed.delete 'sig'
+        verify_signature(parsed, expected_sig, true)
+        
+        @facebook_session = new_facebook_session
+        @facebook_session.secure_with!(parsed['session_key'],parsed['uid'],parsed['expires'],parsed['secret'])
+        @facebook_session
+      end
+        
       def secure_with_cookies!
           parsed = {}
 
