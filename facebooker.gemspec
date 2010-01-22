@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{facebooker-fbg}
-  s.version = "1.0.59"
+  s.version = "10.0.59"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Chad Fowler", "Patrick Ewing", "Mike Mangino", "Shane Vitarana", "Corey Innis", "Mike Mangino"]
